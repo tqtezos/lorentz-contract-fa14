@@ -1,0 +1,10 @@
+-- | Minimal abstract ledger contract that satisfies FA1 specification.
+
+module Lorentz.Contracts.AbstractLedger
+  ( Parameter(..)
+  , Storage (..)
+  , abstractLedgerContract
+  ) where
+
+import Lorentz.Contracts.AbstractLedger.Impl (Storage(..), abstractLedgerContract)
+import Lorentz.Contracts.Spec.AbstractLedgerInterface (Parameter(..))

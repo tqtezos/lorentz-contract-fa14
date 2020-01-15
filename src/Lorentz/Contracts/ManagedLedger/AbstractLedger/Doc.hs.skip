@@ -1,0 +1,26 @@
+-- | Documentation for AbstractLedger contract.
+
+module Lorentz.Contracts.AbstractLedger.Doc
+  ( contractDoc
+  , transferDoc
+  , getBalanceDoc
+  , getTotalSupplyDoc
+  ) where
+
+import Lorentz
+
+contractDoc :: Markdown
+contractDoc =
+  "This documentation describes a minimal abstract ledger contract that is described in TZIP-FA1."
+
+transferDoc :: Markdown
+transferDoc =
+  "Transfers tokens between two given accounts."
+
+getBalanceDoc :: Markdown
+getBalanceDoc =
+  "Returns the balance of the address in the ledger."
+
+getTotalSupplyDoc :: Markdown
+getTotalSupplyDoc =
+  "Returns total number of tokens."

@@ -1,0 +1,58 @@
+-- | Implementation of abstract ledger contract.
+
+module Lorentz.Contracts.AbstractLedger.Impl
+  ( Storage (..)
+  , transfer
+  , getBalance
+  , getTotalSupply
+  , abstractLedgerContract
+  ) where
+
+import Lorentz
+
+import Indigo.Contracts.AbstractLedger (Storage(..))
+import qualified Indigo.Contracts.AbstractLedger as Indigo
+import Lorentz.Contracts.AbstractLedger.Doc
+import Lorentz.Contracts.Spec.AbstractLedgerInterface
+
+{-# ANN module ("HLint: ignore Reduce duplication" :: Text) #-}
+
+----------------------------------------------------------------------------
+-- Entrypoints
+----------------------------------------------------------------------------
+
+transfer :: Entrypoint TransferParams Storage
+transfer = do
+  doc @DefaultDocItems $ DDescription transferDoc
+  Indigo.transfer
+  nil; pair
+
+getTotalSupply :: Entrypoint (View () Natural) Storage
+getTotalSupply = do
+  doc @DefaultDocItems $ DDescription getTotalSupplyDoc
+  view_ $ do cdr; toField #totalSupply
+
+getBalance :: Entrypoint (View GetBalanceParams Natural) Storage
+getBalance = do
+  doc @DefaultDocItems $ DDescription getBalanceDoc
+  view_ $ do
+    unpair
+    dip ( toField #ledger )
+    fromNamed #owner
+    get
+    ifSome nop (push 0)
+
+----------------------------------------------------------------------------
+-- Contract
+----------------------------------------------------------------------------
+
+abstractLedgerContract :: Contract Parameter Storage
+abstractLedgerContract = contractName "Abstract Ledger" $ do
+  doc @DefaultDocItems $ $mkDGitRevision morleyRepoSettings
+  doc @DefaultDocItems $ DDescription contractDoc
+  unpair
+  entryCase @Parameter (Proxy @PlainEntryPointsKind)
+    ( #cTransfer       /-> transfer
+    , #cGetTotalSupply /-> getTotalSupply
+    , #cGetBalance     /-> getBalance
+    )
