@@ -55,7 +55,6 @@ listFromMaybe2 = do
         cons
     )
 
-
 -- type TransferParams = ("from" :! Address, "to" :! Address, "value" :! Natural)
 transfer :: Entrypoint TransferParams Storage
 transfer = do
