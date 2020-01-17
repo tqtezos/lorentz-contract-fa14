@@ -43,6 +43,7 @@ data Parameter
   | GetHooks         !(View Address TransferHooks)
   | GetBalance       !(View (WithWhichToken GetBalanceParams) Natural)
   | GetTotalSupply   !(View ("whichToken" :! Address) Natural)
+  | GetGranularity   !(View ("whichToken" :! Address) Natural)
   | GetAdministrator !(View () Address)
   | Mint             !(WithWhichToken MintParams)
   | Burn             !(WithWhichToken BurnParams)
@@ -56,8 +57,8 @@ instance ParameterEntryPoints Parameter where
 -- Implementation
 ----------------------------------------------------------------------------
 
-hookedSpecializedManagedLedgerContract :: Address -> Contract Parameter Storage
-hookedSpecializedManagedLedgerContract adminAddress = do
+hookedSpecializedManagedLedgerContract :: Natural -> Address -> Contract Parameter Storage
+hookedSpecializedManagedLedgerContract granularity adminAddress = do
   unpair
   entryCase @Parameter (Proxy @PlainEntryPointsKind)
     ( #cTransfer /-> transfer @Parameter
@@ -65,6 +66,7 @@ hookedSpecializedManagedLedgerContract adminAddress = do
     , #cGetHooks /-> getHooks
     , #cGetBalance /-> getBalance @Parameter
     , #cGetTotalSupply /-> getTotalSupply @Parameter
+    , #cGetGranularity /-> getGranularity @Parameter granularity
     , #cGetAdministrator /-> getAdministrator adminAddress
     , #cMint /-> mint @Parameter adminAddress
     , #cBurn /-> burn @Parameter adminAddress

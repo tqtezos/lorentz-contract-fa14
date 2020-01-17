@@ -11,6 +11,7 @@ module Lorentz.Contracts.ManagedLedger.Specialized.Hooked.Identified.Impl
   , getHooks
   , getBalance
   , getTotalSupply
+  , getGranularity
   , getAdministrator
   , mint
   , burn
@@ -157,10 +158,16 @@ getTotalSupply = do
   view_ $ do
     unpair
     coerce_ @("whichToken" :! Address) @Address
-    self @cp
-    address
-    assertEq $ mkMTextUnsafe "whichToken not self"
+    assertWhichToken @cp
     toField #totalSupply
+
+getGranularity :: forall cp. NiceParameter cp => Natural -> Entrypoint (View ("whichToken" :! Address) Natural) Storage
+getGranularity granularity = view_ $ do
+  unpair
+  coerce_ @("whichToken" :! Address) @Address
+  assertWhichToken @cp
+  drop
+  push granularity
 
 getAdministrator :: Address -> Entrypoint (View () Address) store
 getAdministrator adminAddress = do

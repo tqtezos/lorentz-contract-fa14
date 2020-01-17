@@ -12,6 +12,7 @@ module Lorentz.Contracts.ManagedLedger.Specialized.Hooked.Identified.Types
   , ML.BurnParams
 
   , WithWhichToken(..)
+  , assertWhichToken
   , runWithWhichToken
 
   , TransferHookParams
@@ -56,13 +57,17 @@ instance (Typeable a, TypeHasDoc a) => TypeHasDoc (WithWhichToken a) where
   typeDocHaskellRep = haskellRepNoFields $ concreteTypeDocHaskellRep @(WithWhichToken ())
   typeDocMichelsonRep = concreteTypeDocMichelsonRep @(WithWhichToken ())
 
+assertWhichToken :: forall cp s. NiceParameter cp => Address & s :-> s
+assertWhichToken = do
+  self @cp
+  address
+  assertEq $ mkMTextUnsafe "whichToken not self"
+
 runWithWhichToken :: forall cp a s. NiceParameter cp => WithWhichToken a & s :-> a & s
 runWithWhichToken = do
   coerce_ @(WithWhichToken a) @(Address, a)
   unpair
-  self @cp
-  address
-  assertEq $ mkMTextUnsafe "whichToken not self"
+  assertWhichToken @cp
 
 type TransferHookParams = ("isTo" :! Bool, "user" :! Address, "value" :! Natural)
 
